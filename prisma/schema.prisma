@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:postgres@localhost:5432/app" // hardcoded because it's an internal docker connection
+  url      = "postgresql://neondb_owner:npg_uDz0bPY6OEZy@ep-aged-cake-ahz50k7i-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" // hardcoded because it's an internal docker connection
 }
 
 model ContactSubmission {

@@ -110,6 +110,11 @@ export function ZillowReviews() {
   };
 
   const reviews = content[language].reviews;
+  if (!reviews || reviews.length === 0) {
+    return null;
+  }
+
+  const activeReview = reviews[currentReview] ?? reviews[0];
 
   const nextReview = () => {
     setCurrentReview((prev) => (prev + 1) % reviews.length);
@@ -188,16 +193,16 @@ export function ZillowReviews() {
                 {/* Profile */}
                 <div className="mb-6">
                   <h3 className="text-xl font-bold text-navy">
-                    {reviews[currentReview].name}
+                    {activeReview?.name}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {reviews[currentReview].location} • {reviews[currentReview].date}
+                    {activeReview?.location} • {activeReview?.date}
                   </p>
                 </div>
 
                 {/* Stars */}
                 <div className="flex space-x-1 mb-4">
-                  {[...Array(reviews[currentReview].rating)].map((_, i) => (
+                  {[...Array(activeReview?.rating)].map((_, i) => (
                     <Star
                       key={i}
                       className="w-5 h-5 text-primary-gold"
@@ -208,7 +213,7 @@ export function ZillowReviews() {
 
                 {/* Review Text */}
                 <p className="text-gray-700 leading-relaxed flex-grow text-lg">
-                  "{reviews[currentReview].text}"
+                  "{activeReview?.text}"
                 </p>
 
                 {/* Navigation Dots */}

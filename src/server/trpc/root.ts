@@ -24,11 +24,6 @@ import {
   getVideosByCategory,
   getAllPublicVideos,
 } from "./procedures/video";
-import {
-  generateImageUploadUrl,
-  generateVideoCoverUploadUrl,
-  getMinioBaseUrl,
-} from "./procedures/admin-file";
 import { logVisit, getAnalytics } from "./procedures/traffic";
 
 export const appRouter = createTRPCRouter({
@@ -60,11 +55,6 @@ export const appRouter = createTRPCRouter({
       create: createVideo,
       update: updateVideo,
       delete: deleteVideo,
-    }),
-    file: createTRPCRouter({
-      generateImageUploadUrl,
-      generateVideoCoverUploadUrl,
-      getMinioBaseUrl,
     }),
   }),
   traffic: createTRPCRouter({

@@ -1,14 +1,15 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useAdminStore } from '~/store/adminStore';
-import { useTRPC, useTRPCClient } from '~/trpc/react';
+import { useTRPC } from '~/trpc/react';
 
 export const Route = createFileRoute('/admin/_layout/blog/create/')({
   component: CreateBlogPost,
 });
+
+const urlPattern = /^https?:\/\/.+/;
 
 interface BlogPostForm {
   slug: string;
@@ -27,16 +28,9 @@ interface BlogPostForm {
 function CreateBlogPost() {
   const navigate = useNavigate();
   const trpc = useTRPC();
-  const trpcClient = useTRPCClient();
   const queryClient = useQueryClient();
   const token = useAdminStore((state) => state.token);
   const clearToken = useAdminStore((state) => state.clearToken);
-
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [headerImageFile, setHeaderImageFile] = useState<File | null>(null);
-  const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(null);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   const {
     register,
@@ -53,13 +47,12 @@ function CreateBlogPost() {
         navigate({ to: '/admin/blog' });
       },
       onError: (error: any) => {
-        // Check for auth errors
         if (error?.data?.code === 'UNAUTHORIZED' || error?.message?.includes('Invalid or expired token')) {
           clearToken();
           navigate({ to: '/admin' });
           return;
         }
-        
+
         setError('root', {
           type: 'manual',
           message: error.message || 'Failed to create blog post',
@@ -68,94 +61,25 @@ function CreateBlogPost() {
     })
   );
 
-  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setThumbnailFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setThumbnailPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const onSubmit = (data: BlogPostForm) => {
+    const thumbnailUrl = data.thumbnailUrl?.trim() || undefined;
+    const headerImage = data.headerImage?.trim() || undefined;
+
+    if (thumbnailUrl && !urlPattern.test(thumbnailUrl)) {
+      setError('thumbnailUrl', { type: 'manual', message: 'Must be a valid http or https URL' });
+      return;
     }
-  };
-
-  const handleHeaderImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setHeaderImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setHeaderImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (headerImage && !urlPattern.test(headerImage)) {
+      setError('headerImage', { type: 'manual', message: 'Must be a valid http or https URL' });
+      return;
     }
-  };
 
-  const uploadImage = async (file: File, slug: string, imageType: 'thumbnail' | 'header'): Promise<string> => {
-    try {
-      // Generate presigned URL using the tRPC client for imperative calls
-      const { uploadUrl, publicUrl } = await trpcClient.admin.file.generateImageUploadUrl.mutate({
-        token: token!,
-        slug,
-        imageType,
-      });
-
-      // Upload file to MinIO
-      const response = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to upload ${imageType}`);
-      }
-
-      return publicUrl;
-    } catch (error: any) {
-      // Check for auth errors
-      if (error?.data?.code === 'UNAUTHORIZED' || error?.message?.includes('Invalid or expired token')) {
-        clearToken();
-        navigate({ to: '/admin' });
-        throw new Error('Authentication failed. Please log in again.');
-      }
-      throw error;
-    }
-  };
-
-  const onSubmit = async (data: BlogPostForm) => {
-    try {
-      setIsUploadingImages(true);
-      
-      // Upload thumbnail image if selected
-      let thumbnailUrl = data.thumbnailUrl;
-      if (thumbnailFile) {
-        thumbnailUrl = await uploadImage(thumbnailFile, data.slug, 'thumbnail');
-      }
-
-      // Upload header image if selected
-      let headerImageUrl = data.headerImage;
-      if (headerImageFile) {
-        headerImageUrl = await uploadImage(headerImageFile, data.slug, 'header');
-      }
-
-      createMutation.mutate({
-        token: token!,
-        ...data,
-        thumbnailUrl,
-        headerImage: headerImageUrl,
-      });
-    } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Failed to upload images',
-      });
-    } finally {
-      setIsUploadingImages(false);
-    }
+    createMutation.mutate({
+      token: token!,
+      ...data,
+      thumbnailUrl,
+      headerImage,
+    });
   };
 
   const categories = [
@@ -169,7 +93,6 @@ function CreateBlogPost() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <button
           onClick={() => navigate({ to: '/admin/blog' })}
@@ -182,7 +105,6 @@ function CreateBlogPost() {
         <p className="text-gray-600">Fill in the details to create a new blog post</p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl shadow-soft p-8">
         {errors.root && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -191,7 +113,6 @@ function CreateBlogPost() {
         )}
 
         <div className="space-y-6">
-          {/* Slug */}
           <div>
             <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
               Slug (URL) *
@@ -206,7 +127,6 @@ function CreateBlogPost() {
             {errors.slug && <p className="mt-1 text-sm text-red-600">{errors.slug.message}</p>}
           </div>
 
-          {/* Title English */}
           <div>
             <label htmlFor="titleEn" className="block text-sm font-medium text-gray-700 mb-2">
               Title (English) *
@@ -223,7 +143,6 @@ function CreateBlogPost() {
             )}
           </div>
 
-          {/* Title Chinese */}
           <div>
             <label htmlFor="titleZh" className="block text-sm font-medium text-gray-700 mb-2">
               Title (Chinese) *
@@ -240,7 +159,6 @@ function CreateBlogPost() {
             )}
           </div>
 
-          {/* Category */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
               Category *
@@ -262,7 +180,6 @@ function CreateBlogPost() {
             )}
           </div>
 
-          {/* Keywords */}
           <div>
             <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-2">
               Keywords (SEO) *
@@ -279,76 +196,46 @@ function CreateBlogPost() {
             )}
           </div>
 
-          {/* Thumbnail Image Upload */}
-          <div>
-            <label htmlFor="thumbnailImage" className="block text-sm font-medium text-gray-700 mb-2">
-              Thumbnail Image Upload
-            </label>
-            <p className="text-sm text-gray-500 mb-2">
-              Upload a thumbnail image for the blog card preview. Recommended size: 800x600px.
-            </p>
-            <input
-              id="thumbnailFile"
-              type="file"
-              accept="image/*"
-              onChange={handleThumbnailChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
-            />
-            {thumbnailPreview && (
-              <div className="mt-3">
-                <img
-                  src={thumbnailPreview}
-                  alt="Thumbnail preview"
-                  className="w-48 h-32 object-cover rounded-lg border border-gray-200"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Thumbnail URL (Manual Entry - Optional) */}
+          {/* Thumbnail Image URL */}
           <div>
             <label htmlFor="thumbnailUrl" className="block text-sm font-medium text-gray-700 mb-2">
-              Thumbnail URL (optional - manual entry)
+              Thumbnail Image URL (must be a publicly accessible URL)
             </label>
             <p className="text-sm text-gray-500 mb-2">
-              Alternatively, you can manually enter a thumbnail URL if you prefer not to upload.
+              Paste a public image URL for the blog card preview. Recommended size: 800x600px.
             </p>
             <input
               id="thumbnailUrl"
               type="text"
               {...register('thumbnailUrl')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
-              placeholder="/path-to-image.jpg"
+              placeholder="https://example.com/image.jpg or https://images.unsplash.com/..."
             />
-          </div>
-
-          {/* Header Image Upload */}
-          <div>
-            <label htmlFor="headerImage" className="block text-sm font-medium text-gray-700 mb-2">
-              Main Header Image (optional)
-            </label>
-            <p className="text-sm text-gray-500 mb-2">
-              This image will be displayed at the top of the blog post page.
-            </p>
-            <input
-              id="headerImageFile"
-              type="file"
-              accept="image/*"
-              onChange={handleHeaderImageChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
-            />
-            {headerImagePreview && (
-              <div className="mt-3">
-                <img
-                  src={headerImagePreview}
-                  alt="Header preview"
-                  className="w-full max-w-2xl h-48 object-cover rounded-lg border border-gray-200"
-                />
-              </div>
+            {errors.thumbnailUrl && (
+              <p className="mt-1 text-sm text-red-600">{errors.thumbnailUrl.message}</p>
             )}
           </div>
 
-          {/* Excerpt English */}
+          {/* Header Image URL */}
+          <div>
+            <label htmlFor="headerImage" className="block text-sm font-medium text-gray-700 mb-2">
+              Main Header Image URL (must be a publicly accessible URL)
+            </label>
+            <p className="text-sm text-gray-500 mb-2">
+              Paste a public image URL displayed at the top of the blog post page.
+            </p>
+            <input
+              id="headerImage"
+              type="text"
+              {...register('headerImage')}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
+              placeholder="https://example.com/header.jpg or https://images.unsplash.com/..."
+            />
+            {errors.headerImage && (
+              <p className="mt-1 text-sm text-red-600">{errors.headerImage.message}</p>
+            )}
+          </div>
+
           <div>
             <label htmlFor="excerptEn" className="block text-sm font-medium text-gray-700 mb-2">
               Excerpt (English) *
@@ -365,7 +252,6 @@ function CreateBlogPost() {
             )}
           </div>
 
-          {/* Excerpt Chinese */}
           <div>
             <label htmlFor="excerptZh" className="block text-sm font-medium text-gray-700 mb-2">
               Excerpt (Chinese) *
@@ -382,7 +268,6 @@ function CreateBlogPost() {
             )}
           </div>
 
-          {/* Content English */}
           <div>
             <label htmlFor="contentEn" className="block text-sm font-medium text-gray-700 mb-2">
               Content (English) - Markdown supported *
@@ -399,7 +284,6 @@ function CreateBlogPost() {
             )}
           </div>
 
-          {/* Content Chinese */}
           <div>
             <label htmlFor="contentZh" className="block text-sm font-medium text-gray-700 mb-2">
               Content (Chinese) - Markdown supported *
@@ -417,7 +301,6 @@ function CreateBlogPost() {
           </div>
         </div>
 
-        {/* Submit Button */}
         <div className="mt-8 flex space-x-4">
           <button
             type="button"
@@ -428,15 +311,11 @@ function CreateBlogPost() {
           </button>
           <button
             type="submit"
-            disabled={createMutation.isPending || isUploadingImages}
+            disabled={createMutation.isPending}
             className="flex items-center space-x-2 px-6 py-3 bg-primary-gold text-white font-semibold rounded-lg hover:bg-primary-gold-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-5 h-5" />
-            <span>
-              {createMutation.isPending || isUploadingImages
-                ? 'Creating...'
-                : 'Create Post'}
-            </span>
+            <span>{createMutation.isPending ? 'Creating...' : 'Create Post'}</span>
           </button>
         </div>
       </form>

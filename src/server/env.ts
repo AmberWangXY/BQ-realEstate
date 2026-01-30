@@ -8,6 +8,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string(),
   OPENROUTER_API_KEY: z.string(),
   CONTACT_TO_EMAIL: z.string().email().optional(),
+  EMAIL_FROM: z.string().email().optional(),
   RESEND_API_KEY: z.string().min(1),
 });
 

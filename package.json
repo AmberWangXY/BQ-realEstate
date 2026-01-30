@@ -33,7 +33,6 @@
     "@trpc/tanstack-react-query": "^11.1.2",
     "ai": "^4.3.19",
     "autoprefixer": "^10.4.20",
-    "minio": "^8.0.5",
     "playwright": "^1.54.1",
     "postcss": "^8.5.1",
     "react": "^19.0.0",

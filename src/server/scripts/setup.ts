@@ -1,32 +1,6 @@
 import { db } from "~/server/db";
-import { minioClient } from "~/server/minio";
 
 async function setup() {
-  // Set up MinIO bucket for blog images
-  const bucketName = "blog";
-  const bucketExists = await minioClient.bucketExists(bucketName);
-  
-  if (!bucketExists) {
-    await minioClient.makeBucket(bucketName, "us-east-1");
-    console.log(`Created bucket: ${bucketName}`);
-  }
-
-  // Set bucket policy to allow public read access for public/* prefix
-  const policy = {
-    Version: "2012-10-17",
-    Statement: [
-      {
-        Effect: "Allow",
-        Principal: { AWS: ["*"] },
-        Action: ["s3:GetObject"],
-        Resource: [`arn:aws:s3:::${bucketName}/public/*`],
-      },
-    ],
-  };
-
-  await minioClient.setBucketPolicy(bucketName, JSON.stringify(policy));
-  console.log(`Set public read policy for bucket: ${bucketName}`);
-
   // Seed the two SEO blog articles
   const articles = [
     {

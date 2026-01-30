@@ -14,7 +14,12 @@ export const createVideo = baseProcedure
       category: z.enum(["buying", "selling", "tips"], {
         errorMap: () => ({ message: "Category must be buying, selling, or tips" }),
       }),
-      coverImageUrl: z.string().min(1, "Cover image URL is required"),
+      coverImageUrl: z
+        .string()
+        .min(1, "Cover image URL is required")
+        .refine((v) => /^https?:\/\//.test(v), {
+          message: "Cover image URL must be a valid http or https URL",
+        }),
       duration: z.string().regex(/^\d{1,2}:\d{2}$/, "Duration must be in format MM:SS or HH:MM:SS"),
       views: z.string().min(1, "Views count is required"),
       displayOrder: z.number().int().default(0),
@@ -60,7 +65,12 @@ export const updateVideo = baseProcedure
       titleZh: z.string().min(1).optional(),
       videoUrl: z.string().url().optional(),
       category: z.enum(["buying", "selling", "tips"]).optional(),
-      coverImageUrl: z.string().min(1).optional(),
+      coverImageUrl: z
+        .string()
+        .optional()
+        .refine((v) => v === undefined || v === "" || /^https?:\/\//.test(v), {
+          message: "Cover image URL must be a valid http or https URL",
+        }),
       duration: z.string().regex(/^\d{1,2}:\d{2}$/).optional(),
       views: z.string().min(1).optional(),
       displayOrder: z.number().int().optional(),
@@ -87,13 +97,17 @@ export const updateVideo = baseProcedure
       });
     }
 
-    // Update the video
-    const { token, id, ...updateData } = input;
-    
+    // Update the video (omit empty optional strings so we don't overwrite with "")
+    const { token, id, ...rest } = input;
+    const updateData: Record<string, unknown> = { ...rest };
+    if (updateData.coverImageUrl === "" || updateData.coverImageUrl === undefined) {
+      delete updateData.coverImageUrl;
+    }
+
     // If updating the video URL, check if another video already has that URL
     if (updateData.videoUrl) {
       const existingVideo = await db.video.findUnique({
-        where: { videoUrl: updateData.videoUrl },
+        where: { videoUrl: updateData.videoUrl as string },
       });
 
       if (existingVideo && existingVideo.id !== input.id) {
@@ -103,10 +117,10 @@ export const updateVideo = baseProcedure
         });
       }
     }
-    
+
     const updatedVideo = await db.video.update({
       where: { id: input.id },
-      data: updateData,
+      data: updateData as Parameters<typeof db.video.update>[0]["data"],
     });
 
     return { success: true, video: updatedVideo };

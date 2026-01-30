@@ -111,8 +111,9 @@ export function SolutionsSection() {
           </h3>
           <div className="grid md:grid-cols-2 gap-8">
             {content[language].solutions.map((solution, index) => {
-              const Icon = solutionIcons[index];
-              const gradient = gradients[index];
+              const Icon = solutionIcons[index] ?? Target;
+              const gradient = gradients[index] ?? "from-blue-500 to-blue-600";
+
               return (
                 <div
                   key={index}

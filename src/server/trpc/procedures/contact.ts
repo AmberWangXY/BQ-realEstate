@@ -178,13 +178,13 @@ export const submitContactForm = baseProcedure
   .mutation(async ({ input }) => {
     const timestamp = new Date().toISOString();
     const procedureName = "contact.submit";
-    
+
     // Log: Request received
     console.log(`[${timestamp}] [CONTACT_REQUEST_RECEIVED] Procedure: ${procedureName}`);
     console.log(`[${timestamp}] [CONTACT_REQUEST_RECEIVED] From: ${input.email}`);
     console.log(`[${timestamp}] [CONTACT_REQUEST_RECEIVED] Name: ${input.name}`);
     console.log(`[${timestamp}] [CONTACT_REQUEST_RECEIVED] Inquiry: ${input.inquiryType}`);
-    
+
     // Save to database (existing functionality)
     const submission = await db.contactSubmission.create({
       data: {
@@ -195,27 +195,28 @@ export const submitContactForm = baseProcedure
         message: input.message,
       },
     });
-    
+
     console.log(`[${timestamp}] [DATABASE_SAVE_SUCCESS] SubmissionId: ${submission.id}`);
-    
+
     // Determine recipient email (override with env var if set)
     const defaultRecipient = "billqin@bqrealtygroup.com";
     const recipientEmail = env.CONTACT_TO_EMAIL || defaultRecipient;
-    
+
     if (env.CONTACT_TO_EMAIL) {
       console.log(`[${timestamp}] [RECIPIENT_OVERRIDE] Using env var CONTACT_TO_EMAIL: ${recipientEmail}`);
     } else {
       console.log(`[${timestamp}] [RECIPIENT_DEFAULT] Using default recipient: ${recipientEmail}`);
     }
-    
+
     // Send email notification
     try {
       // Resend requires a verified domain for custom FROM addresses.
       // Use the Resend testing address in development to avoid blocking local testing.
+      const defaultFromAddress = env.EMAIL_FROM ||"billqin@bqrealtygroup.com";
       const fromAddress =
         env.NODE_ENV === "development"
           ? "onboarding@resend.dev"
-          : "noreply@bqrealtygroup.com";
+          : defaultFromAddress;
 
       const emailPayload: EmailPayload = {
         to: recipientEmail,
@@ -224,15 +225,15 @@ export const submitContactForm = baseProcedure
         html: generateContactEmailHtml(input),
         text: generateContactEmailText(input),
       };
-      
+
       const emailResult = await sendEmail(emailPayload);
-      
+
       if (!emailResult.success) {
         console.error(`[${timestamp}] [EMAIL_SEND_ERROR] Failed to send email: ${emailResult.error}`);
         // Don't throw error - we still saved to database
         // In production, you might want to retry or alert admins
       }
-      
+
       return {
         success: true,
         submissionId: submission.id,
@@ -241,7 +242,7 @@ export const submitContactForm = baseProcedure
       };
     } catch (error) {
       console.error(`[${timestamp}] [EMAIL_SEND_EXCEPTION]`, error);
-      
+
       // Still return success since database save worked
       return {
         success: true,

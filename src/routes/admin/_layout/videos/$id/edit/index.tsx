@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Upload } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { useAdminStore } from '~/store/adminStore';
-import { useTRPC, useTRPCClient } from '~/trpc/react';
+import { useTRPC } from '~/trpc/react';
 
 export const Route = createFileRoute('/admin/_layout/videos/$id/edit/')({
   component: EditVideo,
@@ -15,6 +15,7 @@ interface VideoForm {
   titleZh: string;
   videoUrl: string;
   category: 'buying' | 'selling' | 'tips';
+  coverImageUrl: string;
   duration: string;
   views: string;
   displayOrder: number;
@@ -24,14 +25,9 @@ function EditVideo() {
   const navigate = useNavigate();
   const { id } = Route.useParams();
   const trpc = useTRPC();
-  const trpcClient = useTRPCClient();
   const queryClient = useQueryClient();
   const token = useAdminStore((state) => state.token);
   const clearToken = useAdminStore((state) => state.clearToken);
-
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const {
     register,
@@ -41,7 +37,6 @@ function EditVideo() {
     reset,
   } = useForm<VideoForm>();
 
-  // Load the video data
   const videoQuery = useQuery(
     trpc.admin.video.getById.queryOptions({
       token: token!,
@@ -49,7 +44,6 @@ function EditVideo() {
     })
   );
 
-  // Handle auth errors from videoQuery
   useEffect(() => {
     if (videoQuery.error) {
       const error = videoQuery.error as any;
@@ -60,7 +54,6 @@ function EditVideo() {
     }
   }, [videoQuery.error, clearToken, navigate]);
 
-  // Pre-fill form when data loads
   useEffect(() => {
     if (videoQuery.data) {
       reset({
@@ -68,15 +61,11 @@ function EditVideo() {
         titleZh: videoQuery.data.titleZh,
         videoUrl: videoQuery.data.videoUrl,
         category: videoQuery.data.category as 'buying' | 'selling' | 'tips',
+        coverImageUrl: videoQuery.data.coverImageUrl || '',
         duration: videoQuery.data.duration,
         views: videoQuery.data.views,
         displayOrder: videoQuery.data.displayOrder,
       });
-      
-      // Set preview image
-      if (videoQuery.data.coverImageUrl) {
-        setCoverPreview(videoQuery.data.coverImageUrl);
-      }
     }
   }, [videoQuery.data, reset]);
 
@@ -92,7 +81,7 @@ function EditVideo() {
           navigate({ to: '/admin' });
           return;
         }
-        
+
         setError('root', {
           type: 'manual',
           message: error.message || 'Failed to update video',
@@ -101,74 +90,23 @@ function EditVideo() {
     })
   );
 
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCoverFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const onSubmit = (data: VideoForm) => {
+    const coverImageUrl = data.coverImageUrl?.trim();
+    if (!coverImageUrl) {
+      setError('coverImageUrl', { type: 'manual', message: 'Cover image URL is required' });
+      return;
     }
-  };
-
-  const uploadCoverImage = async (videoId: string): Promise<string> => {
-    try {
-      const { uploadUrl, publicUrl } = await trpcClient.admin.file.generateVideoCoverUploadUrl.mutate({
-        token: token!,
-        videoId,
-      });
-
-      const response = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: coverFile!,
-        headers: {
-          'Content-Type': coverFile!.type,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload cover image');
-      }
-
-      return publicUrl;
-    } catch (error: any) {
-      if (error?.data?.code === 'UNAUTHORIZED' || error?.message?.includes('Invalid or expired token')) {
-        clearToken();
-        navigate({ to: '/admin' });
-        throw new Error('Authentication failed. Please log in again.');
-      }
-      throw error;
+    if (!/^https?:\/\//.test(coverImageUrl)) {
+      setError('coverImageUrl', { type: 'manual', message: 'Must be a valid http or https URL' });
+      return;
     }
-  };
 
-  const onSubmit = async (data: VideoForm) => {
-    try {
-      setIsUploadingImage(true);
-      
-      let coverImageUrl = videoQuery.data?.coverImageUrl;
-      
-      // Upload new cover if selected
-      if (coverFile) {
-        const videoId = `video-${id}-${Date.now()}`;
-        coverImageUrl = await uploadCoverImage(videoId);
-      }
-
-      updateMutation.mutate({
-        token: token!,
-        id: parseInt(id),
-        ...data,
-        coverImageUrl,
-      });
-    } catch (error) {
-      setError('root', {
-        type: 'manual',
-        message: error instanceof Error ? error.message : 'Failed to upload cover image',
-      });
-    } finally {
-      setIsUploadingImage(false);
-    }
+    updateMutation.mutate({
+      token: token!,
+      id: parseInt(id),
+      ...data,
+      coverImageUrl,
+    });
   };
 
   const categories = [
@@ -206,7 +144,6 @@ function EditVideo() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <button
           onClick={() => navigate({ to: '/admin/videos' })}
@@ -219,7 +156,6 @@ function EditVideo() {
         <p className="text-gray-600">Update the video details</p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl shadow-soft p-8">
         {errors.root && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -228,7 +164,6 @@ function EditVideo() {
         )}
 
         <div className="space-y-6">
-          {/* Title English */}
           <div>
             <label htmlFor="titleEn" className="block text-sm font-medium text-gray-700 mb-2">
               Title (English) *
@@ -245,7 +180,6 @@ function EditVideo() {
             )}
           </div>
 
-          {/* Title Chinese */}
           <div>
             <label htmlFor="titleZh" className="block text-sm font-medium text-gray-700 mb-2">
               Title (Chinese) *
@@ -262,7 +196,6 @@ function EditVideo() {
             )}
           </div>
 
-          {/* Video URL */}
           <div>
             <label htmlFor="videoUrl" className="block text-sm font-medium text-gray-700 mb-2">
               Video URL (YouTube) *
@@ -270,7 +203,7 @@ function EditVideo() {
             <input
               id="videoUrl"
               type="url"
-              {...register('videoUrl', { 
+              {...register('videoUrl', {
                 required: 'Video URL is required',
                 pattern: {
                   value: /^https?:\/\/.+/,
@@ -285,7 +218,6 @@ function EditVideo() {
             )}
           </div>
 
-          {/* Category */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
               Category *
@@ -307,43 +239,26 @@ function EditVideo() {
             )}
           </div>
 
-          {/* Cover Image Upload */}
+          {/* Cover Image URL */}
           <div>
-            <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 mb-2">
-              Cover Image
+            <label htmlFor="coverImageUrl" className="block text-sm font-medium text-gray-700 mb-2">
+              Cover Image URL (must be a publicly accessible URL) *
             </label>
             <p className="text-sm text-gray-500 mb-2">
-              Upload a new cover image or keep the existing one. Recommended size: 800x450px (16:9 aspect ratio).
+              Paste a public image URL for the video thumbnail. Recommended size: 800x450px (16:9).
             </p>
-            <div className="flex items-center space-x-4">
-              <label className="flex-1 cursor-pointer">
-                <div className="flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-gold transition-colors">
-                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">
-                    {coverFile ? coverFile.name : 'Choose new cover image'}
-                  </span>
-                </div>
-                <input
-                  id="coverImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverChange}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            {coverPreview && (
-              <div className="mt-3">
-                <img
-                  src={coverPreview}
-                  alt="Cover preview"
-                  className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200"
-                />
-              </div>
+            <input
+              id="coverImageUrl"
+              type="text"
+              {...register('coverImageUrl', { required: 'Cover image URL is required' })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
+              placeholder="https://example.com/cover.jpg or https://images.unsplash.com/..."
+            />
+            {errors.coverImageUrl && (
+              <p className="mt-1 text-sm text-red-600">{errors.coverImageUrl.message}</p>
             )}
           </div>
 
-          {/* Duration */}
           <div>
             <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
               Duration *
@@ -351,7 +266,7 @@ function EditVideo() {
             <input
               id="duration"
               type="text"
-              {...register('duration', { 
+              {...register('duration', {
                 required: 'Duration is required',
                 pattern: {
                   value: /^\d{1,2}:\d{2}$/,
@@ -366,7 +281,6 @@ function EditVideo() {
             )}
           </div>
 
-          {/* Views */}
           <div>
             <label htmlFor="views" className="block text-sm font-medium text-gray-700 mb-2">
               Views *
@@ -383,7 +297,6 @@ function EditVideo() {
             )}
           </div>
 
-          {/* Display Order */}
           <div>
             <label htmlFor="displayOrder" className="block text-sm font-medium text-gray-700 mb-2">
               Display Order
@@ -394,7 +307,7 @@ function EditVideo() {
             <input
               id="displayOrder"
               type="number"
-              {...register('displayOrder', { 
+              {...register('displayOrder', {
                 valueAsNumber: true,
                 min: { value: 0, message: 'Order must be 0 or greater' },
               })}
@@ -407,7 +320,6 @@ function EditVideo() {
           </div>
         </div>
 
-        {/* Submit Button */}
         <div className="mt-8 flex space-x-4">
           <button
             type="button"
@@ -418,15 +330,11 @@ function EditVideo() {
           </button>
           <button
             type="submit"
-            disabled={updateMutation.isPending || isUploadingImage}
+            disabled={updateMutation.isPending}
             className="flex items-center space-x-2 px-6 py-3 bg-primary-gold text-white font-semibold rounded-lg hover:bg-primary-gold-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-5 h-5" />
-            <span>
-              {updateMutation.isPending || isUploadingImage
-                ? 'Saving...'
-                : 'Save Changes'}
-            </span>
+            <span>{updateMutation.isPending ? 'Saving...' : 'Save Changes'}</span>
           </button>
         </div>
       </form>

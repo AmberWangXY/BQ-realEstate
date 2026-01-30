@@ -17,8 +17,18 @@ export const createBlogPost = baseProcedure
       contentZh: z.string(),
       excerptEn: z.string(),
       excerptZh: z.string(),
-      thumbnailUrl: z.string().optional(),
-      headerImage: z.string().optional(),
+      thumbnailUrl: z
+        .string()
+        .optional()
+        .refine((v) => !v || v.trim() === "" || /^https?:\/\//.test(v), {
+          message: "Image URL must be a valid http or https URL",
+        }),
+      headerImage: z
+        .string()
+        .optional()
+        .refine((v) => !v || v.trim() === "" || /^https?:\/\//.test(v), {
+          message: "Image URL must be a valid http or https URL",
+        }),
     })
   )
   .mutation(async ({ input }) => {
@@ -113,8 +123,18 @@ export const updateBlogPost = baseProcedure
       contentZh: z.string().optional(),
       excerptEn: z.string().optional(),
       excerptZh: z.string().optional(),
-      thumbnailUrl: z.string().optional(),
-      headerImage: z.string().optional(),
+      thumbnailUrl: z
+        .string()
+        .optional()
+        .refine((v) => !v || v.trim() === "" || /^https?:\/\//.test(v), {
+          message: "Image URL must be a valid http or https URL",
+        }),
+      headerImage: z
+        .string()
+        .optional()
+        .refine((v) => !v || v.trim() === "" || /^https?:\/\//.test(v), {
+          message: "Image URL must be a valid http or https URL",
+        }),
     })
   )
   .mutation(async ({ input }) => {

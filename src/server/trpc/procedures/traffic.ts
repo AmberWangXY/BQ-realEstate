@@ -99,7 +99,7 @@ export const getAnalytics = baseProcedure
     // Get visits by day for the last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     const visitsLast30Days = await db.trafficLog.findMany({
       where: {
         createdAt: {
@@ -115,7 +115,9 @@ export const getAnalytics = baseProcedure
     const visitsByDay: Record<string, number> = {};
     visitsLast30Days.forEach((visit) => {
       const day = visit.createdAt.toISOString().split('T')[0];
-      visitsByDay[day] = (visitsByDay[day] || 0) + 1;
+      const safeDay = day ?? "unknown";
+      visitsByDay[safeDay] = (visitsByDay[safeDay] ?? 0) + 1;
+
     });
 
     return {

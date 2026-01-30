@@ -141,7 +141,7 @@ export function VideoHighlights() {
               </button>
             );
           })}
-          
+
           {/* More Videos Button */}
           <a
             href="https://www.youtube.com/@BillQinRealEstateTeam"
@@ -250,57 +250,57 @@ export function VideoHighlights() {
 
         {/* CTA Buttons */}
         <div className="grid md:grid-cols-2 gap-6">
-          {ctaButtons.map((cta, index) => {
-            const Icon = cta.icon;
-            const isExternal = index === 0; // First button (Buyers) is external
-            const href = index === 0 ? 'https://www.youtube.com/playlist?list=PLI6t-yTPya-vz5u1gU2slimmW-2arA5IO' : '/contact';
-            
-            if (isExternal) {
-              return (
-                <a
-                  key={index}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`group relative overflow-hidden bg-gradient-to-br ${cta.gradient} text-white rounded-xl p-8 shadow-soft hover:shadow-soft-lg transition-all duration-300 hover:-translate-y-1 block`}
-                >
-                  <div className="relative z-10">
-                    <Icon className="w-12 h-12 mb-4" />
-                    <h3 className="text-2xl font-bold mb-2">{cta.title}</h3>
-                    <p className={`mb-4 ${index === 0 ? 'text-blue-100' : 'text-yellow-100'}`}>
-                      {cta.subtitle}
-                    </p>
-                    <div className="flex items-center space-x-2 text-white font-semibold">
-                      <span>{cta.action}</span>
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                    </div>
-                  </div>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
-                </a>
-              );
-            }
-            
+        {ctaButtons.map((cta, index) => {
+          const Icon = cta.icon ?? (() => null); // 防止 Icon 为 undefined
+          const isExternal = index === 0;
+
+          if (isExternal) {
+            const href =
+              "https://www.youtube.com/playlist?list=PLI6t-yTPya-vz5u1gU2slimmW-2arA5IO";
+
             return (
-              <Link
+              <a
                 key={index}
-                to={href}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`group relative overflow-hidden bg-gradient-to-br ${cta.gradient} text-white rounded-xl p-8 shadow-soft hover:shadow-soft-lg transition-all duration-300 hover:-translate-y-1 block`}
               >
                 <div className="relative z-10">
                   <Icon className="w-12 h-12 mb-4" />
                   <h3 className="text-2xl font-bold mb-2">{cta.title}</h3>
-                  <p className={`mb-4 ${index === 0 ? 'text-blue-100' : 'text-yellow-100'}`}>
-                    {cta.subtitle}
-                  </p>
+                  <p className="mb-4 text-blue-100">{cta.subtitle}</p>
                   <div className="flex items-center space-x-2 text-white font-semibold">
                     <span>{cta.action}</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                   </div>
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
-              </Link>
+              </a>
             );
-          })}
+          }
+
+          // 内链：直接写死 /contact，避免 TS 认为 href 可能是外链
+          return (
+            <Link
+              key={index}
+              to="/contact"
+              className={`group relative overflow-hidden bg-gradient-to-br ${cta.gradient} text-white rounded-xl p-8 shadow-soft hover:shadow-soft-lg transition-all duration-300 hover:-translate-y-1 block`}
+            >
+              <div className="relative z-10">
+                <Icon className="w-12 h-12 mb-4" />
+                <h3 className="text-2xl font-bold mb-2">{cta.title}</h3>
+                <p className="mb-4 text-yellow-100">{cta.subtitle}</p>
+                <div className="flex items-center space-x-2 text-white font-semibold">
+                  <span>{cta.action}</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
+            </Link>
+          );
+        })}
+
         </div>
       </div>
     </section>
