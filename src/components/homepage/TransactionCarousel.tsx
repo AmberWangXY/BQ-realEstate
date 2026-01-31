@@ -132,9 +132,11 @@ export function TransactionCarousel() {
 
   const stories = content[language].stories;
   const total = stories.length;
+  const atStart = currentIndex === 0;
+  const atEnd = currentIndex === total - 1;
 
-  const handlePrev = () => setCurrentIndex((p) => (p === 0 ? total - 1 : p - 1));
-  const handleNext = () => setCurrentIndex((p) => (p === total - 1 ? 0 : p + 1));
+  const handlePrev = () => setCurrentIndex((i) => Math.max(0, i - 1));
+  const handleNext = () => setCurrentIndex((i) => Math.min(total - 1, i + 1));
 
   return (
     <section className="py-20 bg-gray-50">
@@ -152,110 +154,121 @@ export function TransactionCarousel() {
         {/* Desktop */}
         {isDesktop ? (
           <div className="relative">
-            {/* Nav */}
-            <button
-              onClick={handlePrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-200 hover:scale-110"
-              aria-label="Previous card"
-            >
-              <ChevronLeft className="w-6 h-6 text-navy" />
-            </button>
+          {/* Nav (non-loop + disabled at edges) */}
+          <button
+            onClick={handlePrev}
+            disabled={atStart}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 rounded-full p-3 shadow-lg transition-all duration-200 hidden lg:block
+              ${
+                atStart
+                  ? "bg-white/50 opacity-40 cursor-not-allowed"
+                  : "bg-white/90 hover:bg-white hover:scale-110"
+              }`}
+            aria-label="Previous card"
+          >
+            <ChevronLeft className="w-6 h-6 text-navy" />
+          </button>
 
-            <button
-              onClick={handleNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-200 hover:scale-110"
-              aria-label="Next card"
-            >
-              <ChevronRight className="w-6 h-6 text-navy" />
-            </button>
+          <button
+            onClick={handleNext}
+            disabled={atEnd}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 rounded-full p-3 shadow-lg transition-all duration-200 hidden lg:block
+              ${
+                atEnd
+                  ? "bg-white/50 opacity-40 cursor-not-allowed"
+                  : "bg-white/90 hover:bg-white hover:scale-110"
+              }`}
+            aria-label="Next card"
+          >
+            <ChevronRight className="w-6 h-6 text-navy" />
+          </button>
 
-            {/* Viewport */}
-            <div className="relative mx-auto max-w-4xl overflow-hidden">
-              {/* fades */}
-              <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
+          {/* Viewport */}
+          <div className="relative mx-auto max-w-4xl overflow-hidden">
+            {/* fades */}
+            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
 
-              {/* Center Slot */}
-              <div className="flex justify-center py-2">
-                <div className="relative h-[600px] w-[500px] flex-none">
-                  {stories.map((story, index) => {
-                    const offset = index - currentIndex;
+            {/* Center Slot */}
+            <div className="flex justify-center py-2">
+              <div className="relative h-[380px] w-[500px] flex-none">
+                {stories.map((story, index) => {
+                  const isCenter = index === currentIndex;
+                  const isLeft = index === currentIndex - 1;
+                  const isRight = index === currentIndex + 1;
 
-                    // handle loop neighbor properly (optional)
-                    const leftNeighbor = currentIndex === 0 ? total - 1 : currentIndex - 1;
-                    const rightNeighbor = currentIndex === total - 1 ? 0 : currentIndex + 1;
+                  // ✅ non-loop: only render center + existing neighbors
+                  if (!isCenter && !isLeft && !isRight) return null;
+                  if (atStart && isLeft) return null; // first: no left neighbor
+                  if (atEnd && isRight) return null;  // last: no right neighbor
 
-                    const isCenter = index === currentIndex;
-                    const isLeft = index === leftNeighbor;
-                    const isRight = index === rightNeighbor;
+                  let translate = 0;
+                  if (isLeft) translate = -60;
+                  if (isRight) translate = 60;
 
-                    const isVisible = isCenter || isLeft || isRight;
+                  const scale = isCenter ? 1 : 0.85;
+                  const opacity = isCenter ? 1 : 0.5;
+                  const zIndex = isCenter ? 10 : 5;
 
-                    let translate = 0;
-                    if (isLeft) translate = -60;
-                    if (isRight) translate = 60;
-
-                    const scale = isCenter ? 1 : 0.85;
-                    const opacity = isCenter ? 1 : 0.5;
-                    const zIndex = isCenter ? 10 : 5;
-
-                    return (
-                      <a
-                        key={index}
-                        href={story.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="absolute left-0 top-0 transition-all duration-500 ease-in-out"
-                        style={{
-                          transform: `translateX(${translate}%) scale(${scale})`,
-                          opacity: isVisible ? opacity : 0,
-                          zIndex: isVisible ? zIndex : 0,
-                          pointerEvents: isVisible ? 'auto' : 'none',
-                        }}
-                      >
-                        <Card story={story} labels={content[language].labels} />
-                      </a>
-                    );
-                  })}
-                </div>
+                  return (
+                    <a
+                      key={index}
+                      href={story.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute left-0 top-0 transition-all duration-500 ease-in-out"
+                      style={{
+                        transform: `translateX(${translate}%) scale(${scale})`,
+                        opacity,
+                        zIndex,
+                        pointerEvents: "auto",
+                      }}
+                    >
+                      <Card story={story} labels={content[language].labels} />
+                    </a>
+                  );
+                })}
               </div>
             </div>
+          </div>
 
-            {/* Dots */}
-            <div className="flex justify-center space-x-2 mt-4">
-              {stories.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentIndex ? 'bg-primary-gold w-8' : 'bg-gray-300 hover:bg-gray-400'
-                  }`}
-                  aria-label={`Go to card ${index + 1}`}
-                />
-              ))}
-            </div>
+          {/* Dots */}
+          <div className="flex justify-center space-x-2 mt-4">
+            {stories.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "bg-primary-gold w-8"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}
+                aria-label={`Go to card ${index + 1}`}
+              />
+            ))}
           </div>
-        ) : (
-          /* Mobile */
-          <div className="w-11/12 mx-auto overflow-x-auto snap-x snap-mandatory pb-4">
-            <div ref={mobileRowRef} className="flex items-stretch justify-start gap-4">
-              {stories.map((story, index) => (
-                <a
-                  key={index}
-                  href={story.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-shrink-0 snap-center"
-                >
-                  <div className="w-[85vw]">
-                    <Card story={story} labels={content[language].labels} />
-                  </div>
-                </a>
-              ))}
-            </div>
+        </div>
+      ) : (
+        /* Mobile */
+        <div className="w-11/12 mx-auto overflow-x-auto snap-x snap-mandatory pb-4">
+          <div ref={mobileRowRef} className="flex items-stretch justify-start gap-4">
+            {stories.map((story, index) => (
+              <a
+                key={index}
+                href={story.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 snap-center"
+              >
+                <div className="w-[85vw]">
+                  <Card story={story} labels={content[language].labels} />
+                </div>
+              </a>
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
     </section>
   );
 }
