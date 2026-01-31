@@ -1,15 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 
-import { env } from "~/server/env";
-const dbHost = process.env.DATABASE_URL?.split("@")[1]?.split("/")[0];
-console.log("[ENV] NODE_ENV =", process.env.NODE_ENV);
-console.log("[ENV] DATABASE_URL host =", dbHost);
+// Use bracket notation so Vite/Nitro do NOT inline this at build time.
+// In production (e.g. Render), DATABASE_URL must come from runtime env, not build-time.
+const getDatasourceUrl = () => process.env["DATABASE_URL"];
+const getNodeEnv = () => process.env["NODE_ENV"];
 
-const createPrismaClient = () =>
-  new PrismaClient({
+const createPrismaClient = () => {
+  const datasourceUrl = getDatasourceUrl();
+  if (!datasourceUrl) {
+    throw new Error(
+      "DATABASE_URL is not set. Set it at runtime (e.g. in Render Environment Variables)."
+    );
+  }
+  return new PrismaClient({
+    datasourceUrl,
     log:
-      env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+      getNodeEnv() === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
   });
+};
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;
@@ -17,4 +27,4 @@ const globalForPrisma = globalThis as unknown as {
 
 export const db = globalForPrisma.prisma ?? createPrismaClient();
 
-if (env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+if (getNodeEnv() !== "production") globalForPrisma.prisma = db;
