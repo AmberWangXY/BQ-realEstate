@@ -12,13 +12,13 @@ export function TransactionCarousel() {
     const checkScreenSize = () => {
       setIsDesktop(window.innerWidth >= 1024);
     };
-    
+
     // Check on mount
     checkScreenSize();
-    
+
     // Add event listener for window resize
     window.addEventListener('resize', checkScreenSize);
-    
+
     // Cleanup
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
@@ -37,52 +37,71 @@ export function TransactionCarousel() {
           link: 'https://www.zillow.com/homedetails/8149-Park-Villa-Cir-Cupertino-CA-95014/19632736_zpid/',
           location: '8149 Park Villa Cir, Cupertino',
           storyType: 'First-Time Homebuyer · Location Selection',
-          problem: 'Unfamiliar with the area and unsure where to buy or what was affordable. Long independent search yielded no suitable options.',
-          strategy: 'Assessed available funds and secured pre-approval. Clarified home needs, researched target areas, and conducted in-person tours to identify the best location.',
-          result: 'Found the right home in 2 months. Avoided wasted time and eliminated the steep learning curve on neighborhoods.',
+          problem:
+            'Unfamiliar with the area and unsure where to buy within budget.',
+          strategy:
+            'Clarified budget and needs, researched target areas, and conducted focused home tours.',
+          result:
+            'Found the right home in 2 months with clear direction and confidence.',
         },
         {
           link: 'https://www.zillow.com/homedetails/634-Fairmont-Ave-Mountain-View-CA-94041/19515052_zpid/',
           location: '634 Fairmont Ave, Mountain View',
           storyType: 'Buying Story · No-Experience Buyer',
-          problem: 'No buying experience and worried about missing critical details or making costly mistakes.',
-          strategy: 'Guided through the entire process with clear explanations. Analyzed properties during showings, performed thorough due diligence, and leveraged construction expertise to assess condition and risks.',
-          result: 'Smooth, efficient process with confidence at every step. Buyer remained at ease after closing.',
+          problem:
+            'No buying experience and concerned about making costly mistakes.',
+          strategy:
+            'Provided step-by-step guidance, in-depth property analysis, and full due diligence support.',
+          result:
+            'Completed the purchase smoothly with confidence throughout the process.',
         },
         {
           link: 'https://www.zillow.com/homedetails/1984-Kobara-Ln-San-Jose-CA-95124/19671501_zpid/',
           location: '1984 Kobara Ln, San Jose',
-          storyType: 'Buying + Renovation · Choose an Unrenovated Home to Control Risk',
-          problem: 'Renovated homes were too competitive and expensive. Loved layouts but not renovation styles, and worried about hidden quality issues.',
-          strategy: 'Targeted older homes with strong layouts and renovation potential. Discussed renovation plans during tours, inspected carefully, and started design during escrow for quick execution post-closing.',
-          result: 'Saved significantly vs. buying renovated, got preferred style, minimal time burden, and lived with peace of mind.',
+          storyType: 'Buying + Renovation · Risk-Controlled Strategy',
+          problem:
+            'Renovated homes were expensive and competitive, with quality concerns.',
+          strategy:
+            'Targeted strong-layout older homes and planned renovations early to control risk.',
+          result:
+            'Saved on purchase price and achieved a preferred style with peace of mind.',
         },
         {
           link: 'https://www.zillow.com/homedetails/1639-Mariani-Dr-Sunnyvale-CA-94087/19615927_zpid/',
           location: '1639 Mariani Dr, Sunnyvale',
-          storyType: 'School District Home · Buy at the Right Time, with the Right Validation',
-          problem: 'Uncertain which school district to target and whether home purchase guaranteed school access. Worried about bidding wars and overpaying.',
-          strategy: 'Worked with education consultant for long-term planning. Verified school eligibility before offering. Provided price growth and downside analysis, broke down premium drivers, and pre-defined offer scenarios.',
-          result: 'Bought the right home at the right time. Shifted from emotional bidding to rational decision-making with higher close rate and peace of mind.',
+          storyType: 'School District Home · Rational Decision-Making',
+          problem:
+            'Uncertain about school districts and worried about overpaying in competition.',
+          strategy:
+            'Verified school eligibility, analyzed pricing logic, and defined offer strategies in advance.',
+          result:
+            'Secured the right home with rational pricing and reduced emotional pressure.',
         },
         {
           link: 'https://www.zillow.com/homedetails/1842-Rosswood-Dr-San-Jose-CA-95124/19675701_zpid/',
           location: '1842 Rosswood Dr, San Jose',
-          storyType: 'Selling Story · Choosing the Best Listing Timing',
-          problem: 'Uncertain whether to keep renting or sell, and unsure about optimal listing timing.',
-          strategy: 'Clarified selling goals and timeline. Analyzed market trends and seasonality to select the best listing window.',
-          result: 'Listed at the right time and achieved a higher sale price.',
+          storyType: 'Selling Story · Timing Strategy',
+          problem:
+            'Unsure whether to sell or rent, and unclear on the best listing timing.',
+          strategy:
+            'Analyzed goals and market trends to identify the optimal listing window.',
+          result:
+            'Listed at the right time and achieved a stronger sale outcome.',
         },
         {
           link: 'https://www.zillow.com/homedetails/340-Carlyn-Ave-Campbell-CA-95008/19609634_zpid/',
           location: '340 Carlyn Ave, Campbell',
-          storyType: 'Selling Story · Whether to Renovate Before Listing',
-          problem: 'Older unrenovated homes trigger heavy negotiation, lower offers, and slower decisions. Many buyers want move-in-ready homes.',
-          strategy: 'Selected highest-ROI renovation items with market-proven design. Optimized for maximum buyer appeal. Team handled end-to-end: planning, supervision, budgeting, and closing prep.',
-          result: 'Faster offers with stronger prices. Fewer repair negotiations. Renovation became a pricing tool, not just a cost.',
+          storyType: 'Selling Story · Renovation Decision',
+          problem:
+            'Unrenovated homes faced heavy negotiation and weaker buyer interest.',
+          strategy:
+            'Focused on high-ROI upgrades and optimized presentation for market appeal.',
+          result:
+            'Received faster offers with improved pricing and fewer negotiations.',
         },
       ],
     },
+
     zh: {
       title: '成功交易案例',
       subtitle: '湾区真实客户的真实成交案例',
@@ -96,49 +115,67 @@ export function TransactionCarousel() {
           link: 'https://www.zillow.com/homedetails/8149-Park-Villa-Cir-Cupertino-CA-95014/19632736_zpid/',
           location: '8149 Park Villa Cir, Cupertino',
           storyType: '首次购房 · 选址决策',
-          problem: '对地区不熟悉,不知道该买哪里、预算能买什么。自己看了很久没找到合适选择。',
-          strategy: '评估可用资金并完成预批准。明确需求,研究目标区域,实地看房确认最佳地点。',
-          result: '2个月内买到合适房子。节省大量时间,无需从零摸索地区信息。',
+          problem:
+            '对地区不熟悉，不清楚预算范围内该买哪里。',
+          strategy:
+            '明确预算与需求，研究目标区域，并高效安排看房。',
+          result:
+            '两个月内买到合适房子，方向清晰、决策安心。',
         },
         {
           link: 'https://www.zillow.com/homedetails/634-Fairmont-Ave-Mountain-View-CA-94041/19515052_zpid/',
           location: '634 Fairmont Ave, Mountain View',
           storyType: '买房故事 · 零经验客户',
-          problem: '没有经验,担心漏掉重要细节或犯错导致损失。',
-          strategy: '系统讲解购房流程。看房时分析优缺点,做细致尽调,依托建筑经验判断真实状况与风险。',
-          result: '流程顺畅高效,每步都有把握。成交后安心放心。',
+          problem:
+            '缺乏购房经验，担心犯错造成损失。',
+          strategy:
+            '系统讲解流程，看房时深入分析，并完成完整尽调。',
+          result:
+            '购房过程顺畅高效，全程心里有底。',
         },
         {
           link: 'https://www.zillow.com/homedetails/1984-Kobara-Ln-San-Jose-CA-95124/19671501_zpid/',
           location: '1984 Kobara Ln, San Jose',
-          storyType: '买房 + 装修 · 选未翻新的房子降低风险',
-          problem: '新装修房子竞争激烈且贵。喜欢户型但不喜欢装修风格,担心表面翻新隐藏质量问题。',
-          strategy: '选择户型好、有改造潜力的老房子。看房时讨论装修方案,仔细检查,过户期间启动设计并快速施工。',
-          result: '比买精装修省钱,装成喜欢的风格,时间占用少,居住更安心。',
+          storyType: '买房 + 装修 · 风险控制策略',
+          problem:
+            '精装修房子价格高、竞争大，质量存在隐患。',
+          strategy:
+            '选择户型优质老房，并提前规划装修以控制风险。',
+          result:
+            '节省购房成本，装修成理想风格，居住更安心。',
         },
         {
           link: 'https://www.zillow.com/homedetails/1639-Mariani-Dr-Sunnyvale-CA-94087/19615927_zpid/',
           location: '1639 Mariani Dr, Sunnyvale',
-          storyType: '学区房 · 验证学区与理性出价',
-          problem: '不确定选哪个学区,买房是否能上对应学校。担心竞争激烈,溢价不合理或出价失误。',
-          strategy: '教育顾问参与长期规划。出价前验证学区资格。提供增长与抗跌分析,拆解溢价构成,预设出价策略。',
-          result: '在正确时间地点买到合适房子。从情绪化抢房转为理性配置,成交率更高更踏实。',
+          storyType: '学区房 · 理性决策',
+          problem:
+            '学区选择不明确，担心竞争激烈导致溢价。',
+          strategy:
+            '提前验证学区资格，拆解价格逻辑并制定出价策略。',
+          result:
+            '理性出价买到合适房子，决策压力显著降低。',
         },
         {
           link: 'https://www.zillow.com/homedetails/1842-Rosswood-Dr-San-Jose-CA-95124/19675701_zpid/',
           location: '1842 Rosswood Dr, San Jose',
-          storyType: '卖房故事 · 上市时间选择',
-          problem: '不确定该继续出租还是卖,也不知道最佳上市时间。',
-          strategy: '明确卖房目标与时间表。结合市场趋势选择最佳上市窗口。',
-          result: '在更好的时间上市,卖出更高价格。',
+          storyType: '卖房故事 · 上市时机',
+          problem:
+            '不确定是卖房还是继续出租，也不清楚上市时点。',
+          strategy:
+            '结合目标与市场趋势，选择最佳上市窗口。',
+          result:
+            '在合适时间出售，成交结果明显更优。',
         },
         {
           link: 'https://www.zillow.com/homedetails/340-Carlyn-Ave-Campbell-CA-95008/19609634_zpid/',
           location: '340 Carlyn Ave, Campbell',
-          storyType: '卖房故事 · 出售前是否装修',
-          problem: '老旧房子不装修会被大幅议价、出价慢、要求多。很多买家想拎包入住。',
-          strategy: '选择ROI最高的装修项目,用市场审美判断。优化买家群体吸引力。团队全程负责设计、监管、结算到交房。',
-          result: '出价更快价格更高。减少维修谈判。装修成为定价工具而非成本。',
+          storyType: '卖房故事 · 装修决策',
+          problem:
+            '老房子不装修容易被压价，成交节奏慢。',
+          strategy:
+            '聚焦高回报装修项目，提升整体市场吸引力。',
+          result:
+            '出价更快、价格更好，谈判显著减少。',
         },
       ],
     },
@@ -188,17 +225,18 @@ export function TransactionCarousel() {
             <ChevronRight className="w-6 h-6 text-navy" />
           </button>
 
-          {/* Carousel Viewport with Gradient Edges */}
-          <div className="relative w-11/12 mx-auto lg:mx-16 lg:w-auto overflow-x-scroll snap-x snap-mandatory lg:overflow-hidden pb-4 lg:pb-0">
-            {/* Left Gradient Fade */}
+          {/* Carousel Viewport: mobile = scroll area, desktop = centered overflow hidden */}
+          <div className="relative w-11/12 mx-auto overflow-x-scroll snap-x snap-mandatory pb-4 lg:w-full lg:mx-auto lg:max-w-4xl lg:overflow-hidden lg:pb-0">
+            {/* Left Gradient Fade - desktop only */}
             <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none hidden lg:block" />
-            
-            {/* Right Gradient Fade */}
+
+            {/* Right Gradient Fade - desktop only */}
             <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none hidden lg:block" />
 
-            {/* Cards Container */}
-            <div className="flex items-center justify-start lg:justify-center gap-4 lg:gap-0">
-              <div className="relative flex lg:block lg:w-full lg:max-w-2xl h-[600px] items-center">
+            {/* Cards Container: mobile = flex scroll, desktop = flex center with fixed-width slot */}
+            <div className="flex items-center justify-start gap-4 lg:justify-center lg:gap-0">
+              {/* Mobile: flexible width for scroll. Desktop: fixed 500px slot (card width) so active card is centered */}
+              <div className="relative flex h-[600px] items-center lg:block lg:w-[500px] lg:flex-none lg:max-w-none">
                 {stories.map((story, index) => {
                   const offset = index - currentIndex;
                   const isCenter = offset === 0;
@@ -211,7 +249,7 @@ export function TransactionCarousel() {
                       href={story.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="relative lg:absolute flex-shrink-0 snap-center transition-all duration-500 ease-in-out cursor-pointer"
+                      className="relative flex-shrink-0 snap-center transition-all duration-500 ease-in-out cursor-pointer lg:absolute lg:left-0 lg:top-0"
                       style={isDesktop ? {
                         transform: `translateX(${offset * 60}%) scale(${isCenter ? 1 : 0.85})`,
                         opacity: isCenter ? 1 : isNeighbor ? 0.5 : 0,
