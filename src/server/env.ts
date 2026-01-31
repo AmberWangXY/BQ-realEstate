@@ -10,6 +10,7 @@ const envSchema = z.object({
   CONTACT_TO_EMAIL: z.string().email().optional(),
   EMAIL_FROM: z.string().email().optional(),
   RESEND_API_KEY: z.string().min(1),
+  DATABASE_URL: z.string().min(1),
 });
 
 export const env = envSchema.parse(process.env);
