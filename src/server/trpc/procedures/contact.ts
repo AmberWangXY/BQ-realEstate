@@ -13,6 +13,7 @@ interface EmailPayload {
   subject: string;
   html: string;
   text: string;
+  replyTo?: string;
 }
 
 interface EmailResponse {
@@ -46,6 +47,7 @@ async function sendEmail(payload: EmailPayload): Promise<EmailResponse> {
         subject: payload.subject,
         html: payload.html,
         text: payload.text,
+        reply_to: payload.replyTo,
       }),
     });
 
@@ -224,6 +226,7 @@ export const submitContactForm = baseProcedure
         subject: `New Contact: ${input.inquiryType.toUpperCase()} - ${input.name}`,
         html: generateContactEmailHtml(input),
         text: generateContactEmailText(input),
+        replyTo: input.email,
       };
 
       const emailResult = await sendEmail(emailPayload);
