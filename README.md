@@ -1,6 +1,6 @@
 # Bill Qin Real Estate - Silicon Valley Expert
 
-A modern, high-tech minimalistic real estate website for Bill Qin, a Silicon Valley real estate expert with 20+ years of experience.
+A modern, high-tech minimalistic real estate website for Bill Qin, a Silicon Valley real estate expert with 20+ years of experience. The website can be prereviewed at https://billqin.com/
 
 ## 🎨 Design Philosophy
 
