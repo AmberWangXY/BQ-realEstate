@@ -3,8 +3,11 @@ import { Building2, TrendingUp } from 'lucide-react';
 
 export function ListingsSection() {
   const language = useLanguageStore((state) => state.language);
+  const path = window.location.pathname;
+  const isSellPage = path.includes('/sell');
 
-  const content = {
+
+  const content = isSellPage ? {
     zh: {
       title: '当前在售房源 & 过往成交',
       description: '这里展示的是我目前代理的在售房源，以及近期已经成交的案例，您可以更直观地了解我所覆盖的区域、价格带和房源类型。',
@@ -12,6 +15,17 @@ export function ListingsSection() {
     en: {
       title: 'Current Listings & Past Sales',
       description: 'Here you can browse my active listings as well as recently sold properties to get a clearer sense of the neighborhoods, price ranges, and property types I work with.',
+    },
+  } : {
+    zh: {
+      title: '在售房源精选',
+      description:
+        '这里展示的是我当前代理的在售房源，涵盖不同区域、价格区间与房型，帮助您快速了解当前市场上可选的优质房源。',
+    },
+    en: {
+      title: 'Available Listings',
+      description:
+        'Explore the properties I am currently representing, covering a range of neighborhoods, price points, and home types to help you understand what is available on the market.',
     },
   };
 
@@ -43,7 +57,7 @@ export function ListingsSection() {
                 {language === 'zh' ? '当前在售' : 'Active Listings'}
               </h3>
               <p className="text-gray-600">
-                {language === 'zh' 
+                {language === 'zh'
                   ? '查看我目前代理的在售房源'
                   : 'Browse my current active listings'}
               </p>
@@ -62,7 +76,7 @@ export function ListingsSection() {
                 {language === 'zh' ? '过往成交' : 'Recently Sold'}
               </h3>
               <p className="text-gray-600">
-                {language === 'zh' 
+                {language === 'zh'
                   ? '查看近期已经成交的案例'
                   : 'View recently sold properties'}
               </p>

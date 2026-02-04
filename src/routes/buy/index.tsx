@@ -6,6 +6,7 @@ import { IntroSection } from '~/components/buy/IntroSection';
 import { SolutionsSection } from '~/components/buy/SolutionsSection';
 import { SuccessfulStoriesSection } from '~/components/buy/SuccessfulStoriesSection';
 import { ShowcaseSection } from '~/components/buy/ShowcaseSection';
+import { ListingsSection } from '~/components/sell/ListingsSection';
 import { ContactCta } from '~/components/buy/ContactCta';
 
 export const Route = createFileRoute('/buy/')({
@@ -21,6 +22,7 @@ function BuyPage() {
       <SolutionsSection />
       <SuccessfulStoriesSection />
       <ShowcaseSection />
+      <ListingsSection />
       <ContactCta />
       <Footer />
     </div>
