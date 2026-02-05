@@ -4,11 +4,20 @@ import { baseProcedure } from "~/server/trpc/main";
 import { db } from "~/server/db";
 import { verifyAdminToken } from "./admin-auth";
 
+function slugify(title: string) {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")   // 去掉特殊字符
+    .replace(/\s+/g, "-")           // 空格 → -
+    .replace(/-+/g, "-");           // 多个 - 合并
+}
+
 export const createBlogPost = baseProcedure
   .input(
     z.object({
       token: z.string(),
-      slug: z.string(),
+
       titleEn: z.string(),
       titleZh: z.string(),
       keywords: z.string(),
@@ -41,9 +50,11 @@ export const createBlogPost = baseProcedure
     }
 
     // Check if slug already exists
-    const existing = await db.blogPost.findUnique({
-      where: { slug: input.slug },
-    });
+    const slug = slugify(input.titleEn);
+
+  const existing = await db.blogPost.findUnique({
+    where: { slug },
+  });
 
     if (existing) {
       throw new TRPCError({
@@ -55,7 +66,7 @@ export const createBlogPost = baseProcedure
     // Create the blog post
     const post = await db.blogPost.create({
       data: {
-        slug: input.slug,
+        slug: slug,
         titleEn: input.titleEn,
         titleZh: input.titleZh,
         keywords: input.keywords,

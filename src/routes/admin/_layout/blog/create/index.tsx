@@ -114,20 +114,6 @@ function CreateBlogPost() {
 
         <div className="space-y-6">
           <div>
-            <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
-              Slug (URL) *
-            </label>
-            <input
-              id="slug"
-              type="text"
-              {...register('slug', { required: 'Slug is required' })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-gold focus:border-transparent"
-              placeholder="e.g., how-to-buy-silicon-valley-2025"
-            />
-            {errors.slug && <p className="mt-1 text-sm text-red-600">{errors.slug.message}</p>}
-          </div>
-
-          <div>
             <label htmlFor="titleEn" className="block text-sm font-medium text-gray-700 mb-2">
               Title (English) *
             </label>
