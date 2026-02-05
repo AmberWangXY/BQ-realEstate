@@ -32,8 +32,8 @@ export function ListingsSection() {
       title: 'Proven Success in Helping Buyers Win Their Dream Homes',
       description:
         'Explore homes we have successfully secured for our buyers across Silicon Valley. From competitive multiple-offer situations to off-market opportunities, we help clients purchase the right property with strong negotiation strategies, deep market data, and full transaction support.',
-      activeListingsTitle: 'View More Verified Transactions on Zillow',
-      soldListingsTitle: 'See What Our Clients Say',
+      activeListingsTitle: 'More Verified Transactions',
+      soldListingsTitle: 'Our Clients Say',
       },
   };
 
