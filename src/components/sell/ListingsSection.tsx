@@ -1,5 +1,5 @@
 import { useLanguageStore } from '~/store/languageStore';
-import { Building2, TrendingUp } from 'lucide-react';
+import { Building2, TrendingUp, MessageSquareMore } from 'lucide-react';
 
 export function ListingsSection() {
   const language = useLanguageStore((state) => state.language);
@@ -74,7 +74,7 @@ export function ListingsSection() {
             className="block"
           >
             <div className="bg-gradient-to-br from-cream to-white rounded-2xl p-12 text-center border-2 border-gray-200 hover:border-primary-gold transition-colors cursor-pointer">
-              <TrendingUp className="w-16 h-16 text-primary-gold mx-auto mb-6" />
+              {isSellPage?<TrendingUp className="w-16 h-16 text-primary-gold mx-auto mb-6" />:<MessageSquareMore className="w-16 h-16 text-primary-gold mx-auto mb-6" />}
               <h3 className="text-2xl font-bold text-navy mb-4">
                 {currentContent.soldListingsTitle}
               </h3>
