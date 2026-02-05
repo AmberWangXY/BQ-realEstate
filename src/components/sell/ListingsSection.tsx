@@ -11,22 +11,30 @@ export function ListingsSection() {
     zh: {
       title: '当前在售房源 & 过往成交',
       description: '这里展示的是我目前代理的在售房源，以及近期已经成交的案例，您可以更直观地了解我所覆盖的区域、价格带和房源类型。',
+      activeListingsTitle: '当前在售房源',
+      soldListingsTitle: '过往成交案例',
     },
     en: {
       title: 'Current Listings & Past Sales',
       description: 'Here you can browse my active listings as well as recently sold properties to get a clearer sense of the neighborhoods, price ranges, and property types I work with.',
+      activeListingsTitle: 'Active Listings',
+      soldListingsTitle: 'Recently Sold',
     },
   } : {
     zh: {
-      title: '在售房源精选',
+      title: '成功帮助买家赢得理想之家',
       description:
-        '这里展示的是我当前代理的在售房源，涵盖不同区域、价格区间与房型，帮助您快速了解当前市场上可选的优质房源。',
+        '探索我们在硅谷成功为买家拿下的优质房源。无论是在竞争激烈的多方竞价环境中，还是稀缺的非公开房源机会，我们都通过成熟的谈判策略、深入的市场数据分析以及全流程的交易支持，帮助客户成功购入真正合适的房产。',
+      activeListingsTitle: '查看更多已验证的成功成交案例',
+      soldListingsTitle: '看看客户对我们的真实评价',
     },
     en: {
-      title: 'Available Listings',
+      title: 'Proven Success in Helping Buyers Win Their Dream Homes',
       description:
-        'Explore the properties I am currently representing, covering a range of neighborhoods, price points, and home types to help you understand what is available on the market.',
-    },
+        'Explore homes we have successfully secured for our buyers across Silicon Valley. From competitive multiple-offer situations to off-market opportunities, we help clients purchase the right property with strong negotiation strategies, deep market data, and full transaction support.',
+      activeListingsTitle: 'View More Verified Transactions on Zillow',
+      soldListingsTitle: 'See What Our Clients Say',
+      },
   };
 
   const currentContent = content[language];
@@ -54,13 +62,8 @@ export function ListingsSection() {
             <div className="bg-gradient-to-br from-cream to-white rounded-2xl p-12 text-center border-2 border-gray-200 hover:border-primary-gold transition-colors cursor-pointer">
               <Building2 className="w-16 h-16 text-primary-gold mx-auto mb-6" />
               <h3 className="text-2xl font-bold text-navy mb-4">
-                {language === 'zh' ? '当前在售' : 'Active Listings'}
+                {currentContent.activeListingsTitle}
               </h3>
-              <p className="text-gray-600">
-                {language === 'zh'
-                  ? '查看我目前代理的在售房源'
-                  : 'Browse my current active listings'}
-              </p>
             </div>
           </a>
 
@@ -73,13 +76,8 @@ export function ListingsSection() {
             <div className="bg-gradient-to-br from-cream to-white rounded-2xl p-12 text-center border-2 border-gray-200 hover:border-primary-gold transition-colors cursor-pointer">
               <TrendingUp className="w-16 h-16 text-primary-gold mx-auto mb-6" />
               <h3 className="text-2xl font-bold text-navy mb-4">
-                {language === 'zh' ? '过往成交' : 'Recently Sold'}
+                {currentContent.soldListingsTitle}
               </h3>
-              <p className="text-gray-600">
-                {language === 'zh'
-                  ? '查看近期已经成交的案例'
-                  : 'View recently sold properties'}
-              </p>
             </div>
           </a>
         </div>
