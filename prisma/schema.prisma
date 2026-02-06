@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+﻿// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -51,17 +51,4 @@ model Video {
   displayOrder  Int      @default(0)
 
   @@index([category, displayOrder])
-}
-
-model TrafficLog {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  visitorId   String   // Anonymous visitor ID
-  country     String?  // Country from geoIP
-  region      String?  // Region/state from geoIP
-  city        String?  // City from geoIP
-  page        String   // Page URL visited
-
-  @@index([createdAt])
-  @@index([visitorId])
 }

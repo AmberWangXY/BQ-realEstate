@@ -1,4 +1,4 @@
-import {
+﻿import {
   createCallerFactory,
   createTRPCRouter,
   baseProcedure,
@@ -24,7 +24,6 @@ import {
   getVideosByCategory,
   getAllPublicVideos,
 } from "./procedures/video";
-import { logVisit, getAnalytics } from "./procedures/traffic";
 
 export const appRouter = createTRPCRouter({
   contact: createTRPCRouter({
@@ -57,11 +56,7 @@ export const appRouter = createTRPCRouter({
       delete: deleteVideo,
     }),
   }),
-  traffic: createTRPCRouter({
-    log: logVisit,
-    getAnalytics,
-  }),
-  
+
   // when we add a real procedure, remove this placeholder
   placeholderProcedure: baseProcedure.query(() => {
     return "placeholder";

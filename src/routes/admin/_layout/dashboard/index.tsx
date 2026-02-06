@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+﻿import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { FileText, BarChart3, TrendingUp, Users } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { useEffect } from 'react';
 import { useAdminStore } from '~/store/adminStore';
 import { useTRPC } from '~/trpc/react';
@@ -19,10 +19,6 @@ function Dashboard() {
     trpc.admin.blog.getAll.queryOptions({ token: token! })
   );
 
-  const analyticsQuery = useQuery(
-    trpc.traffic.getAnalytics.queryOptions({ token: token! })
-  );
-
   // Handle authentication errors for blog posts query
   useEffect(() => {
     if (blogPostsQuery.isError && blogPostsQuery.error) {
@@ -34,17 +30,6 @@ function Dashboard() {
     }
   }, [blogPostsQuery.isError, blogPostsQuery.error, clearToken, navigate]);
 
-  // Handle authentication errors for analytics query
-  useEffect(() => {
-    if (analyticsQuery.isError && analyticsQuery.error) {
-      const error = analyticsQuery.error as any;
-      if (error?.data?.code === 'UNAUTHORIZED' || error?.message?.includes('Invalid or expired token')) {
-        clearToken();
-        navigate({ to: '/admin' });
-      }
-    }
-  }, [analyticsQuery.isError, analyticsQuery.error, clearToken, navigate]);
-
   const stats = [
     {
       name: 'Total Blog Posts',
@@ -52,27 +37,6 @@ function Dashboard() {
       icon: FileText,
       color: 'bg-blue-500',
       loading: blogPostsQuery.isLoading,
-    },
-    {
-      name: 'Total Visits',
-      value: analyticsQuery.data?.totalVisits || 0,
-      icon: BarChart3,
-      color: 'bg-green-500',
-      loading: analyticsQuery.isLoading,
-    },
-    {
-      name: "Today's Visits",
-      value: analyticsQuery.data?.todayVisits || 0,
-      icon: TrendingUp,
-      color: 'bg-purple-500',
-      loading: analyticsQuery.isLoading,
-    },
-    {
-      name: 'Unique Visitors',
-      value: analyticsQuery.data?.uniqueVisitors || 0,
-      icon: Users,
-      color: 'bg-orange-500',
-      loading: analyticsQuery.isLoading,
     },
   ];
 
@@ -132,21 +96,34 @@ function Dashboard() {
         </div>
 
         <div className="bg-white rounded-xl shadow-soft p-6">
-          <h2 className="text-xl font-bold text-navy mb-4">Recent Activity</h2>
-          {analyticsQuery.isLoading ? (
+          <h2 className="text-xl font-bold text-navy mb-4">Recent Blog Posts</h2>
+          {blogPostsQuery.isLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-16 bg-gray-200 rounded animate-pulse" />
               ))}
             </div>
+          ) : blogPostsQuery.isError ? (
+            <p className="text-sm text-red-600">Failed to load blog posts</p>
           ) : (
             <div className="space-y-3">
-              {analyticsQuery.data?.topPages.slice(0, 3).map((page, index) => (
-                <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-navy truncate">{page.page}</p>
-                  <p className="text-xs text-gray-600 mt-1">{page.count} visits</p>
+              {blogPostsQuery.data?.slice(0, 3).map((post) => (
+                <div key={post.id} className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm font-medium text-navy truncate">
+                    {post.titleEn || post.titleZh}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {new Date(post.publishDate).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </p>
                 </div>
               ))}
+              {blogPostsQuery.data?.length === 0 && (
+                <p className="text-sm text-gray-500">No blog posts yet</p>
+              )}
             </div>
           )}
         </div>

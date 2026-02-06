@@ -1,5 +1,5 @@
-import { Link, useLocation, useNavigate } from '@tanstack/react-router';
-import { LayoutDashboard, FileText, BarChart3, LogOut, Menu, X, Video } from 'lucide-react';
+﻿import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import { LayoutDashboard, FileText, LogOut, Menu, X, Video } from 'lucide-react';
 import { useState } from 'react';
 import { useAdminStore } from '~/store/adminStore';
 
@@ -29,11 +29,6 @@ export function AdminSidebar() {
       name: 'Video Management',
       href: '/admin/videos',
       icon: Video,
-    },
-    {
-      name: 'User Traffic',
-      href: '/admin/traffic',
-      icon: BarChart3,
     },
   ];
 
