@@ -8,9 +8,30 @@ function slugify(title: string) {
   return title
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, "")   // 去掉特殊字符
-    .replace(/\s+/g, "-")           // 空格 → -
-    .replace(/-+/g, "-");           // 多个 - 合并
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function generateRandomSlug(length = 12) {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+
+  for (let i = 0; i < length; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return result;
+}
+
+async function generateUniqueRandomSlug() {
+  let slug = generateRandomSlug();
+
+  while (await db.blogPost.findUnique({ where: { slug } })) {
+    slug = generateRandomSlug();
+  }
+
+  return slug;
 }
 
 export const createBlogPost = baseProcedure
@@ -41,7 +62,6 @@ export const createBlogPost = baseProcedure
     })
   )
   .mutation(async ({ input }) => {
-    // Verify admin token
     if (!verifyAdminToken(input.token)) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -49,24 +69,26 @@ export const createBlogPost = baseProcedure
       });
     }
 
-    // Check if slug already exists
-    const slug = slugify(input.titleEn);
+    const titleSlug = slugify(input.titleEn);
+    const slug = titleSlug || (await generateUniqueRandomSlug());
 
-  const existing = await db.blogPost.findUnique({
-    where: { slug },
-  });
-
-    if (existing) {
-      throw new TRPCError({
-        code: "CONFLICT",
-        message: "A blog post with this slug already exists",
+    // Keep existing conflict behavior for non-empty title-based slugs.
+    if (titleSlug) {
+      const existing = await db.blogPost.findUnique({
+        where: { slug },
       });
+
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A blog post with this slug already exists",
+        });
+      }
     }
 
-    // Create the blog post
     const post = await db.blogPost.create({
       data: {
-        slug: slug,
+        slug,
         titleEn: input.titleEn,
         titleZh: input.titleZh,
         keywords: input.keywords,
@@ -92,7 +114,6 @@ export const deleteBlogPost = baseProcedure
     })
   )
   .mutation(async ({ input }) => {
-    // Verify admin token
     if (!verifyAdminToken(input.token)) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -100,7 +121,6 @@ export const deleteBlogPost = baseProcedure
       });
     }
 
-    // Check if post exists
     const post = await db.blogPost.findUnique({
       where: { id: input.id },
     });
@@ -112,7 +132,6 @@ export const deleteBlogPost = baseProcedure
       });
     }
 
-    // Delete the post
     await db.blogPost.delete({
       where: { id: input.id },
     });
@@ -149,7 +168,6 @@ export const updateBlogPost = baseProcedure
     })
   )
   .mutation(async ({ input }) => {
-    // Verify admin token
     if (!verifyAdminToken(input.token)) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -157,7 +175,6 @@ export const updateBlogPost = baseProcedure
       });
     }
 
-    // Check if post exists
     const post = await db.blogPost.findUnique({
       where: { id: input.id },
     });
@@ -169,7 +186,6 @@ export const updateBlogPost = baseProcedure
       });
     }
 
-    // If slug is being changed, check for conflicts
     if (input.slug && input.slug !== post.slug) {
       const existing = await db.blogPost.findUnique({
         where: { slug: input.slug },
@@ -183,7 +199,6 @@ export const updateBlogPost = baseProcedure
       }
     }
 
-    // Update the post
     const { token, id, ...updateData } = input;
     const updatedPost = await db.blogPost.update({
       where: { id: input.id },
@@ -196,7 +211,6 @@ export const updateBlogPost = baseProcedure
 export const getAllBlogPosts = baseProcedure
   .input(z.object({ token: z.string() }))
   .query(async ({ input }) => {
-    // Verify admin token
     if (!verifyAdminToken(input.token)) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -221,7 +235,6 @@ export const getPostById = baseProcedure
     })
   )
   .query(async ({ input }) => {
-    // Verify admin token
     if (!verifyAdminToken(input.token)) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
